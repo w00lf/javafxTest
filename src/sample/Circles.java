@@ -3,12 +3,7 @@ package sample;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
-import javafx.application.Platform;
-import javafx.beans.binding.Binding;
 import javafx.beans.binding.Bindings;
-import javafx.beans.binding.DoubleBinding;
-import javafx.beans.binding.IntegerBinding;
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Group;
@@ -28,10 +23,7 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import javafx.util.converter.NumberStringConverter;
 
-import java.lang.reflect.Array;
-import java.time.Instant;
-import java.time.LocalTime;
-import java.util.Random;
+import java.util.ArrayList;
 
 import static java.lang.Math.random;
 
@@ -42,7 +34,9 @@ public class Circles {
     private Scene prevousScene;
     private Group root;
     private Stage currentStage;
+    private Scene currentScene;
     private TextField radiusTextField;
+
 
     public void start(Stage stage){
         currentStage = stage;
@@ -50,18 +44,18 @@ public class Circles {
 //        addCloseButton();
 
         radiusTextField = new TextField();
-        Scene scene = new Scene(root, 800, 600, Color.BLACK);
-        Rectangle colors = getGradient(scene);
+        currentScene = new Scene(root, 800, 600, Color.BLACK);
+        Rectangle colors = getGradient(currentScene);
         Group circles = getWhiteCircles();
 
         Group blendModeGroup =
-                new Group(new Group(new Rectangle(scene.getWidth(), scene.getHeight(),
+                new Group(new Group(new Rectangle(currentScene.getWidth(), currentScene.getHeight(),
                         Color.BLACK), circles), colors);
         colors.setBlendMode(BlendMode.OVERLAY);
         root.getChildren().add(blendModeGroup);
         root.getChildren().add(radiusTextField);
         prevousScene = currentStage.getScene();
-        currentStage.setScene(scene);
+        currentStage.setScene(currentScene);
     }
 
     private Rectangle getGradient(Scene scene) {
@@ -103,50 +97,10 @@ public class Circles {
             circle.setStrokeWidth(4);
             circles.getChildren().add(circle);
         }
-        for (Node circle: circles.getChildren()) {
-            new Thread() {
-                // runnable for that thread
-                public void run() {
-                    double currentAnimationLength = 0.0;
-                    long startAnimationTime = System.currentTimeMillis();
-                    Duration endDuration = new Duration(currentAnimationLength);
-                    double currentX = circle.getLayoutX();
-                    double currentY = circle.getLayoutY();
-                    double nextX = circle.getLayoutX();
-                    double nextY = circle.getLayoutY();
-
-                    Timeline timeline = new Timeline();
-                    while (!isInterrupted()) {
-
-                        if ((System.currentTimeMillis() - startAnimationTime) < currentAnimationLength)
-                            continue;
-                        timeline.stop();
-                        currentAnimationLength = (random() * 10000) + 10000.0;
-                        System.out.println("Current animation length: " + currentAnimationLength);
-                        System.out.println("Current time: " + (System.currentTimeMillis() - startAnimationTime));
-                        Duration temp = new Duration(currentAnimationLength);
-                        nextX = random() * 800;
-                        nextY = random() * 600;
-                        timeline.getKeyFrames().addAll(
-                            new KeyFrame(endDuration, // set start position at 0
-                                    new KeyValue(circle.translateXProperty(),currentX),
-                                    new KeyValue(circle.translateYProperty(), currentY)
-                            ),
-
-                            new KeyFrame(new Duration(currentAnimationLength), // set end position at 40s
-                                    new KeyValue(circle.translateXProperty(), nextX),
-                                    new KeyValue(circle.translateYProperty(), nextY)
-                            )
-                        );
-                        currentX = nextX;
-                        currentY = nextY;
-                        startAnimationTime = System.currentTimeMillis();
-                        endDuration = temp;
-                        timeline.play();
-                    }
-                }
-            }.start();
-        }
+        ArrayList myList = new ArrayList();
+        myList.addAll(circles.getChildren());
+        CirclesAnimator circlesAnimator = new CirclesAnimator(myList, currentScene);
+        circlesAnimator.animate();
         return circles;
     }
 }
