@@ -89,7 +89,7 @@ public class Circles {
 
     private Group getWhiteCircles() {
         Group circles = new Group();
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 20; i++) {
             Circle circle = new Circle(150, Color.web("white", 0.05));
             Bindings.bindBidirectional(radiusTextField.textProperty(), circle.radiusProperty(), new NumberStringConverter());
             circle.setStrokeType(StrokeType.OUTSIDE);

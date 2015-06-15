@@ -18,29 +18,17 @@ import static java.lang.Math.random;
  */
 public class CirclesAnimator {
     private final ArrayList<Circle> circles;
-    private HashMap<Integer, Boolean> animataionStatuses = new HashMap<Integer, Boolean>();
     private Scene scene;
 
     CirclesAnimator( final ArrayList<Circle> circles, final Scene scene){
         this.circles = circles;
         this.scene = scene;
-        for (Node circle: circles){
-            animataionStatuses.put(circle.hashCode(), false);
-        }
     }
 
     public void animate() {
-        new Thread() {
-            public void run() {
-                while(!isInterrupted()) {
-                    for (Node circle : circles) {
-                        if (animataionStatuses.get(circle.hashCode()) == true)
-                            continue;
-                        animateCircle(circle);
-                    }
-                }
-            }
-        }.start();
+        for (Node circle : circles) {
+            animateCircle(circle);
+        }
     }
 
     private void animateCircle(Node circle) {
@@ -60,10 +48,9 @@ public class CirclesAnimator {
         timeline.setOnFinished(new javafx.event.EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                animataionStatuses.put(circle.hashCode(), false);
+                animateCircle(circle);
             }
         });
-        animataionStatuses.put(circle.hashCode(), true);
         timeline.play();
     }
 }
